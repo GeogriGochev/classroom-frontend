@@ -1,8 +1,12 @@
+import { ListView } from '@/components/refine-ui/views/list-view';
+import { Breadcrumb } from '@/components/refine-ui/layout/breadcrumb';
+
 const SubjectsList = () => {
   return (
-    <div>
-      <h1>Subjects</h1>
-    </div>
+    <ListView>
+      <Breadcrumb/>
+      <h1 className='page-title'>Subjects</h1>
+    </ListView>
   )
 }
 
