@@ -1,35 +1,48 @@
-// import { createSimpleRestDataProvider } from "@refinedev/rest/simple-rest";
-// import { API_URL } from "./constants";
-// export const { dataProvider, kyInstance } = createSimpleRestDataProvider({
-//     apiURL: API_URL,
-// });
+import { createDataProvider, type CreateDataProviderOptions } from "@refinedev/rest";
+import { BACKEND_BASE_URL } from "@/constants";
+import { ListResponse } from '@/types';
 
-import {BaseRecord, DataProvider, GetListParams, GetListResponse } from "@refinedev/core";
-import { mockSubjects } from "@/constants/mock-data";
+const options: CreateDataProviderOptions = {
+  getList: {
+    getEndpoint: ({ resource }: { resource: string }) => resource,
+    buildQueryParams: async ({resource,pagination,filters}) => {
+      const page = pagination?.currentPage ?? 1;
+      const pageSize = pagination?.pageSize ?? 10;
+      const params: Record<string, string | number> = {
+        page,limit: pageSize,
+      }
 
-// Mock subject data for 3 university courses
+      filters?.forEach((filter) => {
+        const field = 'field' in filter ? filter.field : '';
+        const value = String(filter.value);
 
-
-
-
-export const dataProvider: DataProvider = {
-  getList: async <TData extends BaseRecord = BaseRecord>({ resource }:
-    GetListParams): Promise<GetListResponse<TData>> => {
-      if (resource !== 'subjects') {
-        return {
-          data: [] as TData[],
-          total: 0,
+        if( resource === 'subjects') {
+          if(field === 'department') {
+            params.department = value;
+          }
+          if(field === 'name' || field === 'code') {
+            params.search = value;
+          }
         }
-      }
+      })
 
-      return {
-        data: mockSubjects as unknown as TData[],
-        total: mockSubjects.length,
-      }
-  },
-  getOne:  async () => {throw new Error('Method not implemented.')},
-  create: async () => {throw new Error('Method not implemented.')},
-  update: async () => {throw new Error('Method not implemented.')},
-  deleteOne: async () => {throw new Error('Method not implemented.')},
-  getApiUrl: () => '',
+      return params;
+
+    },
+    mapResponse: async (response: Response) => {
+      const payload: ListResponse = await response.json();
+
+      return payload.data ?? []
+    },
+    getTotalCount: async (response) => {
+      const payload: ListResponse = await response.json();
+
+      return payload.pagination?.total ?? payload.data?.length ?? 0;
+    }
+  }
+
 }
+
+const { dataProvider } = createDataProvider(BACKEND_BASE_URL,options);
+
+export { dataProvider }
