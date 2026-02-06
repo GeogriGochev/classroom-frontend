@@ -27,17 +27,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { useBack, useList } from "@refinedev/core";
 import { Loader2 } from "lucide-react";
 import { classSchema } from "@/lib/schema";
-import { Subject } from "@/types";
+import UploadWidget from "@/components/upload-widget";
+import { Subject, User } from "@/types";
 import z from "zod";
-import UploadWidget from '@/components/upload-widget';
-
-// Dummy teachers until users/teachers API exists
-const DUMMY_TEACHERS = [
-  { id: "teacher-1", name: "Dr. Jane Smith" },
-  { id: "teacher-2", name: "Prof. John Davis" },
-  { id: "teacher-3", name: "Dr. Maria Garcia" },
-  { id: "teacher-4", name: "Prof. Robert Wilson" },
-] as const;
 
 const ClassesCreate = () => {
   const back = useBack();
@@ -77,6 +69,24 @@ const ClassesCreate = () => {
       pageSize: 100,
     },
   });
+
+  // Fetch teachers list
+  const { query: teachersQuery } = useList<User>({
+    resource: "users",
+    filters: [
+      {
+        field: "role",
+        operator: "eq",
+        value: "teacher",
+      },
+    ],
+    pagination: {
+      pageSize: 100,
+    },
+  });
+
+  const teachers = teachersQuery.data?.data || [];
+  const teachersLoading = teachersQuery.isLoading;
 
   const subjects = subjectsQuery.data?.data || [];
   const subjectsLoading = subjectsQuery.isLoading;
@@ -218,6 +228,7 @@ const ClassesCreate = () => {
                         <Select
                           onValueChange={field.onChange}
                           value={field.value?.toString()}
+                          disabled={teachersLoading}
                         >
                           <FormControl>
                             <SelectTrigger className="w-full">
@@ -225,7 +236,7 @@ const ClassesCreate = () => {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {DUMMY_TEACHERS.map((teacher) => (
+                            {teachers.map((teacher) => (
                               <SelectItem key={teacher.id} value={teacher.id}>
                                 {teacher.name}
                               </SelectItem>

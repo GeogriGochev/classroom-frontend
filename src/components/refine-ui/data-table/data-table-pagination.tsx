@@ -25,6 +25,7 @@ type DataTablePaginationProps = {
   pageSize: number;
   setPageSize: (size: number) => void;
   total?: number;
+  variant?: "default" | "simple";
 };
 
 export function DataTablePagination({
@@ -34,6 +35,7 @@ export function DataTablePagination({
   pageSize,
   setPageSize,
   total,
+  variant = "default",
 }: DataTablePaginationProps) {
   const pageSizeOptions = useMemo(() => {
     const baseOptions = [10, 20, 30, 40, 50];
@@ -45,6 +47,56 @@ export function DataTablePagination({
 
     return Array.from(optionsSet).sort((a, b) => a - b);
   }, [pageSize]);
+
+  if (variant === "simple") {
+    return (
+      <div
+        className={cn(
+          "flex",
+          "items-center",
+          "justify-between",
+          "flex-wrap",
+          "px-2",
+          "w-full",
+          "gap-2",
+        )}
+      >
+        <div
+          className={cn(
+            "flex-1",
+            "text-sm",
+            "text-muted-foreground",
+            "whitespace-nowrap",
+          )}
+        >
+          {typeof total === "number" ? `${total} row(s)` : null}
+        </div>
+        <div className={cn("flex", "items-center", "gap-2")}>
+          <span className={cn("text-sm", "font-medium")}>
+            Page {currentPage} of {pageCount}
+          </span>
+          <Button
+            variant="outline"
+            className={cn("h-8", "w-8", "p-0")}
+            onClick={() => setCurrentPage(currentPage - 1)}
+            disabled={currentPage === 1}
+            aria-label="Go to previous page"
+          >
+            <ChevronLeft />
+          </Button>
+          <Button
+            variant="outline"
+            className={cn("h-8", "w-8", "p-0")}
+            onClick={() => setCurrentPage(currentPage + 1)}
+            disabled={currentPage === pageCount}
+            aria-label="Go to next page"
+          >
+            <ChevronRight />
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div

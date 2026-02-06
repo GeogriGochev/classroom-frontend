@@ -1,0 +1,18 @@
+diff --git a/node_modules/@refinedev/rest/tsconfig.json b/node_modules/@refinedev/rest/tsconfig.json
+index 9f93972..9fe32ac 100644
+--- a/node_modules/@refinedev/rest/tsconfig.json
++++ b/node_modules/@refinedev/rest/tsconfig.json
+@@ -1,8 +1,11 @@
+ {
+   "include": ["src", "types"],
+-  "extends": "../../tsconfig.build.json",
+   "compilerOptions": {
+     "rootDir": "./src",
+-    "baseUrl": "."
++    "baseUrl": ".",
++    "target": "ES2020",
++    "module": "ESNext",
++    "moduleResolution": "bundler",
++    "skipLibCheck": true
+   }
+ }
